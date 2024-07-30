@@ -69,9 +69,17 @@ const connexion = catchAsync(async (req, res, next) => {
   }
 
   //voir si c'est le bonne utilisateur
-  const resultat = await utilisateur.findOne({
-    where: { [Op.or]: [{ email }, { phone }] },
-  });
+  let resultat;
+  if (email) {
+    resultat = await utilisateur.findOne({
+      where: { email },
+    });
+  } else {
+    resultat = await utilisateur.findOne({
+      where: { phone },
+    });
+  }
+
   if (!resultat || !(await bcrypt.compare(motdepasse, resultat.motdepasse))) {
     return next(new AppError("Votre email ou mot de passe errone", 401));
   }
