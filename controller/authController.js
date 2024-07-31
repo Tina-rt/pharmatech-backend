@@ -13,7 +13,7 @@ const generateToken = (payload) => {
   });
 };
 
-//inscription
+/*                         INSCRIPTION                  */
 const inscription = catchAsync(async (req, res, next) => {
   const body = req.body;
 
@@ -93,4 +93,51 @@ const connexion = catchAsync(async (req, res, next) => {
     token,
   });
 });
-module.exports = { inscription, connexion };
+
+/*                         MISE A JOUR DU PROFIL                  */
+
+const miseAJourProfil = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+
+  const { nom, prenom, email, adresse, phone } = req.body;
+
+  const utilisateurToUpdate = await utilisateur.findByPk(userId);
+
+  if (!utilisateurToUpdate) {
+    return next(new AppError("Utilisateur non trouvé", 404));
+  }
+
+  utilisateurToUpdate.nom = nom;
+  utilisateurToUpdate.prenom = prenom;
+  utilisateurToUpdate.email = email;
+  utilisateurToUpdate.adresse = adresse;
+  utilisateurToUpdate.phone = phone;
+
+  await utilisateurToUpdate.save();
+
+  return res.status(200).json({
+    status: "Success",
+
+    message: "Profil mis à jour avec succès",
+  });
+});
+
+/*                         SUPPRESSION DU COMPTE                  */
+
+const suppressionCompte = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+
+  const utilisateurToDelete = await utilisateur.findByPk(userId);
+
+  if (!utilisateurToDelete) {
+    return next(new AppError("Utilisateur non trouvé", 404));
+  }
+
+  await utilisateurToDelete.destroy();
+
+  return res.status(200).json({
+    status: "Success",
+    message: "Compte supprimé avec succès",
+  });
+});
+module.exports = { inscription, connexion, miseAJourProfil, suppressionCompte };

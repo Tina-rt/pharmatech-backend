@@ -20,13 +20,13 @@ app.get("/", (req, res) => {
 });
 
 //tous les routes
-app.use("/api/auth", authRouter);
+app.use("/api/auth", authRouter); //route pour authentification
 
 //Route indisponnible
 app.use(
   "*",
   catchAsync(async (req, res, next) => {
-    throw new AppError("URL " + req.URL + " n'existe pas", 404);
+    throw new AppError("La page n'existe pas", 404);
   })
 );
 
