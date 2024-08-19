@@ -12,6 +12,10 @@ const router = require("express").Router();
 router
   .route("/creerProduit")
   .post(authentification, restriction("admin"), creerProduit);
-router.route("/creerCategorie").post(creerCategorie);
+
+// route pour les categories
+router
+  .route("/creerCategorie")
+  .post(authentification, restriction("admin"), creerCategorie);
 
 module.exports = router;

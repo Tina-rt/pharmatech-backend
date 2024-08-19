@@ -157,7 +157,7 @@ const authentification = catchAsync(async (req, res, next) => {
     return next(new AppError("L’utilisateur n’existe plus", 400));
   }
 
-  req.user = utilisateurRecent;
+  req.utilisateur = utilisateurRecent;
   return next();
 });
 
