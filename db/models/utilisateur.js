@@ -50,21 +50,13 @@ module.exports = sequelize.define(
         },
       },
     },
-    adresse: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     phone: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
         len: {
-          args: [10, 15],
-          msg: "Numero entre 10 a 15 caracteres.",
-        },
-        isNumeric: {
-          msg: "Juste des nombres",
+          args: [9, 16],
+          msg: "Numero entre 9 a 16 caracteres.",
         },
       },
     },

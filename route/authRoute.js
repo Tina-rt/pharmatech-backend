@@ -1,7 +1,7 @@
 const {
   inscription,
   connexion,
-  miseAJourProfil,
+  deconnexion,
 } = require("../controller/authController");
 
 const router = require("express").Router();
@@ -9,6 +9,6 @@ const router = require("express").Router();
 // route pour les Authentification
 router.route("/inscription").post(inscription);
 router.route("/connexion").post(connexion);
-router.route("/misajour").put(miseAJourProfil);
+router.route("/deconnexion").post(deconnexion);
 
 module.exports = router;

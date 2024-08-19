@@ -7,6 +7,7 @@ const port = process.env.APP_PORT;
 app.use(express.json());
 
 const authRouter = require("./route/authRoute");
+const produitRouter = require("./route/produitRoute");
 const catchAsync = require("./utils/catchAsync");
 const AppError = require("./utils/appError");
 const { stack } = require("sequelize/lib/utils");
@@ -21,6 +22,7 @@ app.get("/", (req, res) => {
 
 //tous les routes
 app.use("/api/auth", authRouter); //route pour authentification
+app.use("/api/produit", produitRouter); //route pour produit
 
 //Route indisponnible
 app.use(
