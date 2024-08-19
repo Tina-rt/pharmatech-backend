@@ -105,7 +105,7 @@ const connexion = catchAsync(async (req, res, next) => {
 });
 
 /*                         RESTRICTION CERTAIN ROLE                  */
-const restriction = (...role) => {
+const restriction = (...roles) => {
   const checkPermission = (req, res, next) => {
     // Vérification si req.utilisateur est défini
     if (!req.utilisateur) {
@@ -113,7 +113,7 @@ const restriction = (...role) => {
     }
 
     // Vérification du rôle
-    if (!role.includes(req.utilisateur.role)) {
+    if (!roles.includes(req.utilisateur.role)) {
       return next(
         new AppError("Vous n'avez pas la permission pour cette action", 403)
       );
