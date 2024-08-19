@@ -3,15 +3,28 @@ const {
   restriction,
 } = require("../controller/authController");
 const { creerCategorie } = require("../controller/categorieController");
-const { creerProduit } = require("../controller/produitController");
+const {
+  creerProduit,
+  getProduits,
+  getProduitId,
+  modifierProduit,
+  supprimerProduit,
+} = require("../controller/produitController");
 
 const router = require("express").Router();
 
 // route pour les Produits
 
 router
-  .route("/creerProduit")
-  .post(authentification, restriction("admin"), creerProduit);
+  .route("/")
+  .post(authentification, restriction("admin"), creerProduit)
+  .get(authentification, getProduits);
+
+router
+  .route("/:id")
+  .get(authentification, getProduitId)
+  .patch(authentification, restriction("admin"), modifierProduit)
+  .delete(authentification, restriction("admin"), supprimerProduit);
 
 // route pour les categories
 router
