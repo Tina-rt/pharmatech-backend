@@ -2,7 +2,7 @@ const {
   authentification,
   restriction,
 } = require("../controller/authController");
-const { creerCategorie } = require("../controller/categorieController");
+
 const {
   creerProduit,
   getProduits,
@@ -25,10 +25,5 @@ router
   .get(authentification, getProduitId)
   .patch(authentification, restriction("admin"), modifierProduit)
   .delete(authentification, restriction("admin"), supprimerProduit);
-
-// route pour les categories
-router
-  .route("/creerCategorie")
-  .post(authentification, restriction("admin"), creerCategorie);
 
 module.exports = router;

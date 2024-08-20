@@ -62,7 +62,7 @@ module.exports = sequelize.define(
       },
     },
     categorie_id: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     marque: {
@@ -77,9 +77,7 @@ module.exports = sequelize.define(
     numero_serie: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      unique: {
-        msg: "Le numero de serie existe deja",
-      },
+      unique: true,
     },
     caracteristique_principale: {
       type: DataTypes.TEXT,

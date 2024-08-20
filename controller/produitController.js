@@ -1,9 +1,19 @@
 const produit = require("../db/models/produit");
+const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 
 //creer Produit
 const creerProduit = catchAsync(async (req, res, next) => {
   const body = req.body;
+
+  const produitExistant = await produit.findOne({
+    where: { numero_serie: body.numero_serie },
+  });
+  if (produitExistant) {
+    return next(
+      new AppError("Un produit avec ce numero de serie existe déjà", 400)
+    );
+  }
 
   const nouveauProduit = await produit.create({
     nom: body.nom,
@@ -19,6 +29,9 @@ const creerProduit = catchAsync(async (req, res, next) => {
     tva_pourcentage: body.tva_pourcentage,
   });
 
+  if (!nouveauProduit) {
+    return next(new AppError(" Impossible de creer le produit", 400));
+  }
   return res.status(201).json({
     status: "Success",
     data: nouveauProduit,

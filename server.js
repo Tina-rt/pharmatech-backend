@@ -8,6 +8,7 @@ app.use(express.json());
 
 const authRouter = require("./route/authRoute");
 const produitRouter = require("./route/produitRoute");
+const categorieRouter = require("./route/categorieRoute");
 const catchAsync = require("./utils/catchAsync");
 const AppError = require("./utils/appError");
 const { stack } = require("sequelize/lib/utils");
@@ -23,7 +24,7 @@ app.get("/", (req, res) => {
 //tous les routes
 app.use("/api/auth", authRouter); //route pour authentification
 app.use("/api/produit", produitRouter); //route pour produit
-
+app.use("/api/categorie", categorieRouter); //route pour categorie
 //Route indisponnible
 app.use(
   "*",
