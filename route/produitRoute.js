@@ -9,6 +9,7 @@ const {
   getProduitId,
   modifierProduit,
   supprimerProduit,
+  upload,
 } = require("../controller/produitController");
 
 const router = require("express").Router();
@@ -17,13 +18,23 @@ const router = require("express").Router();
 
 router
   .route("/")
-  .post(authentification, restriction("admin"), creerProduit)
+  .post(
+    authentification,
+    restriction("admin"),
+    upload.single("image"),
+    creerProduit
+  )
   .get(authentification, getProduits);
 
 router
   .route("/:id")
   .get(authentification, getProduitId)
-  .patch(authentification, restriction("admin"), modifierProduit)
+  .put(
+    authentification,
+    restriction("admin"),
+    upload.single("image"),
+    modifierProduit
+  )
   .delete(authentification, restriction("admin"), supprimerProduit);
 
 module.exports = router;

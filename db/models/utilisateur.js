@@ -1,7 +1,11 @@
 "use strict";
 const { Model, Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../../config/database");
-module.exports = sequelize.define(
+const panier = require("./panier");
+const paiement = require("./paiement");
+const livraison = require("./livraison");
+const commande = require("./commande");
+const utilisateur = sequelize.define(
   "utilisateur",
   {
     id: {
@@ -83,3 +87,9 @@ module.exports = sequelize.define(
     modelName: "utilisateur",
   }
 );
+
+utilisateur.hasMany(panier, { foreignKey: "utilisateur_id" });
+panier.belongsTo(utilisateur, { foreignKey: "utilisateur_id" });
+utilisateur.hasMany(commande, { foreignKey: "utilisateur_id" });
+commande.belongsTo(utilisateur, { foreignKey: "utilisateur_id" });
+module.exports = utilisateur;

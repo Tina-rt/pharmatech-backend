@@ -1,8 +1,21 @@
+const multer = require("multer");
 const produit = require("../db/models/produit");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 
-//creer Produit
+// Configuration de Multer pour le stockage des images
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage: storage });
+
+// Créer Produit avec gestion de photo
 const creerProduit = catchAsync(async (req, res, next) => {
   const body = req.body;
 
@@ -20,7 +33,7 @@ const creerProduit = catchAsync(async (req, res, next) => {
     description: body.description,
     prix: body.prix,
     stock: body.stock,
-    image: body.image,
+    image: req.file.path, // Utilisation de l'image téléchargée
     categorie_id: body.categorie_id,
     marque: body.marque,
     numero_serie: body.numero_serie,
@@ -39,8 +52,7 @@ const creerProduit = catchAsync(async (req, res, next) => {
   });
 });
 
-//Lire toutes produits
-
+// Lire toutes produits
 const getProduits = catchAsync(async (req, res, next) => {
   const resultat = await produit.findAll();
 
@@ -52,8 +64,7 @@ const getProduits = catchAsync(async (req, res, next) => {
   });
 });
 
-//lire un produits par ID
-
+// Lire un produit par ID
 const getProduitId = catchAsync(async (req, res, next) => {
   const produitId = req.params.id;
 
@@ -69,7 +80,7 @@ const getProduitId = catchAsync(async (req, res, next) => {
   });
 });
 
-//Modifier produit
+// Modifier produit
 const modifierProduit = catchAsync(async (req, res, next) => {
   const produitId = req.params.id;
   const body = req.body;
@@ -86,7 +97,7 @@ const modifierProduit = catchAsync(async (req, res, next) => {
   resultat.description = body.description;
   resultat.prix = body.prix;
   resultat.stock = body.stock;
-  resultat.image = body.image;
+  resultat.image = req.file ? req.file.path : resultat.image; // Mise à jour de l'image si fournie
   resultat.categorie_id = body.categorie_id;
   resultat.marque = body.marque;
   resultat.numero_serie = body.numero_serie;
@@ -103,7 +114,7 @@ const modifierProduit = catchAsync(async (req, res, next) => {
   });
 });
 
-//Supprimer un produit
+// Supprimer un produit
 const supprimerProduit = catchAsync(async (req, res, next) => {
   const produitID = req.params.id;
   const body = req.body;
@@ -123,10 +134,12 @@ const supprimerProduit = catchAsync(async (req, res, next) => {
     message: "Produit supprimer avec succes",
   });
 });
+
 module.exports = {
   creerProduit,
   getProduits,
   getProduitId,
   modifierProduit,
   supprimerProduit,
+  upload, // Exportation de l'upload pour l'utiliser dans les routes
 };

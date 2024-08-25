@@ -22,7 +22,7 @@ router
 router
   .route("/:id")
   .get(authentification, getCategorieId)
-  .patch(authentification, restriction("admin"), modifierCategorie)
+  .put(authentification, restriction("admin"), modifierCategorie)
   .delete(authentification, restriction("admin"), supprimerCategorie);
 
 module.exports = router;

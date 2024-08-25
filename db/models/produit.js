@@ -1,7 +1,8 @@
 "use strict";
 const { Model, Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../../config/database");
-module.exports = sequelize.define(
+const panierProduit = require("./panierproduit");
+const produit = sequelize.define(
   "produit",
   {
     id: {
@@ -123,3 +124,7 @@ module.exports = sequelize.define(
     modelName: "produit",
   }
 );
+
+produit.hasMany(panierProduit, { foreignKey: "produit_id" });
+panierProduit.belongsTo(produit, { foreignKey: "produit_id" });
+module.exports = produit;
