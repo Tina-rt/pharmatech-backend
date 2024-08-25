@@ -25,7 +25,7 @@ const panier = sequelize.define(
       onDelete: "CASCADE",
     },
     statut: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM("actif", "pret", "valide"),
       allowNull: false,
       defaultValue: "actif",
     },

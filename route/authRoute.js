@@ -10,5 +10,4 @@ const router = require("express").Router();
 router.route("/inscription").post(inscription);
 router.route("/connexion").post(connexion);
 router.route("/deconnexion").post(deconnexion);
-
 module.exports = router;
