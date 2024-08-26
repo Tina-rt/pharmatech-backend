@@ -1,10 +1,8 @@
-const {
-  panier,
-  panierProduit,
-  produit,
-  commande,
-  commandeProduit,
-} = require("../db/models");
+const panier = require("../db/models/panier");
+const panierProduit = require("../db/models/panierproduit");
+const produit = require("../db/models/produit");
+const commande = require("../db/models/commande");
+
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 
@@ -24,11 +22,29 @@ const creerCommande = catchAsync(async (req, res, next) => {
   // Récupérer les produits du panier
   const panierProduits = await panierProduit.findAll({
     where: { panier_id: panierExistant.id },
-    include: [{ model: produit, attributes: ["prix", "tva_pourcentage"] }],
+    include: [
+      {
+        model: produit,
+        attributes: ["nom", "prix", "tva_pourcentage", "quantite_stock"],
+      },
+    ],
   });
 
   if (panierProduits.length === 0) {
     return next(new AppError("Le panier est vide", 400));
+  }
+
+  // Vérifier la disponibilité des produits en stock
+  for (const item of panierProduits) {
+    const produitStock = await produit.findByPk(item.produit_id);
+    if (item.quantite > produitStock.quantite_stock) {
+      return next(
+        new AppError(
+          `La quantité demandée pour le produit ${produitStock.nom} dépasse le stock disponible`,
+          400
+        )
+      );
+    }
   }
 
   // Créer une commande
@@ -66,13 +82,13 @@ const creerCommande = catchAsync(async (req, res, next) => {
   });
 });
 
-// Récupérer les commandes d'un utilisateur
+/*                          Récupérer les commandes d'un utilisateur                     */
 const getCommandesUtilisateur = catchAsync(async (req, res, next) => {
   const utilisateurId = req.utilisateur.id;
 
   const commandes = await commande.findAll({
     where: { utilisateur_id: utilisateurId },
-    include: [{ model: commandeProduit, include: [produit] }],
+    include: [{ model: panier }],
   });
 
   if (!commandes.length) {
@@ -91,7 +107,11 @@ const mettreAJourStatutCommande = catchAsync(async (req, res, next) => {
   const commandeId = req.params.id;
   const { statut } = req.body;
 
-  if (!["en cours", "expédié", "livré", "annulé"].includes(statut)) {
+  if (
+    !["en attente", "en cours", "expediee", "livree", "annulee"].includes(
+      statut
+    )
+  ) {
     return next(new AppError("Statut invalide", 400));
   }
 
