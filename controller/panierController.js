@@ -82,12 +82,51 @@ const getPanier = catchAsync(async (req, res, next) => {
 
   const panierProduits = await panierProduit.findAll({
     where: { panier_id: panierExistant.id },
-    include: [{ model: produit, attributes: ["nom", "prix", "image"] }],
+    include: [
+      {
+        model: produit,
+        attributes: ["nom", "prix", "image", "tva_pourcentage"],
+      },
+    ],
   });
 
-  res.json({
+  // Initialiser les totaux
+  let totalSansTVA = 0;
+  let totalTVA = 0;
+  let totalAvecTVA = 0;
+
+  // Calculer le prix total avec TVA pour chaque produit
+  const produitsAvecTVA = panierProduits.map((item) => {
+    const prixTotal = item.quantite * item.produit.prix;
+    const prixTVA = prixTotal * (item.produit.tva_pourcentage / 100);
+    const prixTotalAvecTVA = prixTotal + prixTVA;
+
+    // Ajouter aux totaux
+    totalSansTVA += prixTotal;
+    totalTVA += prixTVA;
+    totalAvecTVA += prixTotalAvecTVA;
+
+    return {
+      id: item.produit.id,
+      nom: item.produit.nom,
+      image: item.produit.image,
+      prix_unitaire: item.produit.prix,
+      quantite: item.quantite,
+      TVA: item.produit.tva_pourcentage,
+      prix_total: prixTotal.toFixed(2),
+      prix_TVA: prixTVA.toFixed(2),
+      prix_total_avec_TVA: prixTotalAvecTVA.toFixed(2),
+    };
+  });
+
+  return res.status(200).json({
     status: "success",
-    data: panierProduits,
+    data: produitsAvecTVA,
+    total_panier: {
+      total_sans_TVA: totalSansTVA.toFixed(2),
+      total_TVA: totalTVA.toFixed(2),
+      total_avec_TVA: totalAvecTVA.toFixed(2),
+    },
     message: "Voici le contenu de votre panier",
   });
 });
@@ -117,7 +156,7 @@ const mettreAJourQuantite = catchAsync(async (req, res, next) => {
   panierProduitExistant.quantite = quantite;
   await panierProduitExistant.save();
 
-  res.json({
+  return res.status(201).json({
     status: "success",
     message: "Quantité mise à jour avec succès",
   });
@@ -145,7 +184,7 @@ const supprimerDuPanier = catchAsync(async (req, res, next) => {
   }
 
   await panierProduitExistant.destroy();
-  res.json({
+  return res.status(201).json({
     status: "success",
     message: "Produit supprimé du panier avec succès",
   });
@@ -166,7 +205,7 @@ const validerPanier = catchAsync(async (req, res, next) => {
   panierExistant.statut = "valide";
   await panierExistant.save();
 
-  res.json({
+  return res.status(201).json({
     status: "success",
     message: "Panier validé avec succès",
   });
@@ -187,7 +226,7 @@ const fermerPanier = catchAsync(async (req, res, next) => {
   panierExistant.statut = "ferme";
   await panierExistant.save();
 
-  res.json({
+  return res.status(201).json({
     status: "success",
     message: "Panier fermé avec succès",
   });

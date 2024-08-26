@@ -16,14 +16,12 @@ const router = require("express").Router();
 // route pour les Produits
 
 router.route("/").get(authentification, getPanier);
-
+router.route("/valider").post(authentification, validerPanier);
+router.route("/fermer").post(authentification, fermerPanier);
 router
   .route("/:id")
   .post(authentification, ajouterAuPanier)
   .patch(authentification, mettreAJourQuantite)
   .delete(authentification, supprimerDuPanier);
-
-router.route("/valider").get(authentification, validerPanier);
-router.route("/fermer").get(authentification, fermerPanier);
 
 module.exports = router;
