@@ -20,6 +20,8 @@ const creerCategorie = catchAsync(async (req, res, next) => {
   if (!nouvelleCategorie) {
     return next(new AppError("Impossible de créer la catégorie", 400));
   }
+  console.log(body.nom);
+
   return res.status(201).json({
     status: "Success",
     data: nouvelleCategorie,

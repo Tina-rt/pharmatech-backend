@@ -56,12 +56,12 @@ module.exports = sequelize.define(
       },
     },
     statut_paiement: {
-      type: Sequelize.ENUM("en attente", "payé", "échec"),
+      type: Sequelize.ENUM("en attente", "paye", "echec"),
       allowNull: false,
       defaultValue: "en attente",
       validate: {
         isIn: {
-          args: [["en attente", "payé", "échec"]],
+          args: [["en attente", "paye", "echec"]],
           msg: "Le statut du paiement n'est pas valide.",
         },
       },
