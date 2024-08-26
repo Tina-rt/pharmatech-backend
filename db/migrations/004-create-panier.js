@@ -17,7 +17,7 @@ module.exports = {
         },
       },
       statut: {
-        type: Sequelize.ENUM("actif", "pret", "valide", "ferme"),
+        type: Sequelize.ENUM("actif", "pret", "valide", "commande", "ferme"),
         defaultValue: "actif",
       },
       createdAt: {
