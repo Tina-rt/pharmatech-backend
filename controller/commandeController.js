@@ -26,7 +26,7 @@ const creerCommande = catchAsync(async (req, res, next) => {
     include: [
       {
         model: produit,
-        attributes: ["nom", "prix", "tva_pourcentage", "stock"],
+        attributes: ["nom", "prix", "tva_pourcentage"],
       },
     ],
   });
