@@ -32,7 +32,6 @@ const creerProduit = catchAsync(async (req, res, next) => {
     nom: body.nom,
     description: body.description,
     prix: body.prix,
-    stock: body.stock,
     image: req.file.path, // Utilisation de l'image téléchargée
     categorie_id: body.categorie_id,
     marque: body.marque,
@@ -96,7 +95,6 @@ const modifierProduit = catchAsync(async (req, res, next) => {
   resultat.nom = body.nom;
   resultat.description = body.description;
   resultat.prix = body.prix;
-  resultat.stock = body.stock;
   resultat.image = req.file ? req.file.path : resultat.image; // Mise à jour de l'image si fournie
   resultat.categorie_id = body.categorie_id;
   resultat.marque = body.marque;

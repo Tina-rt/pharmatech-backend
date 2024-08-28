@@ -21,11 +21,7 @@ module.exports = {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: false,
       },
-      stock: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        defaultValue: 1,
-      },
+
       image: {
         type: Sequelize.STRING(250),
         allowNull: false,
@@ -55,7 +51,6 @@ module.exports = {
       reduction: {
         type: Sequelize.DECIMAL(5, 2),
         defaultValue: 0.0,
-        allowNull: false,
       },
       tva_pourcentage: {
         type: Sequelize.DECIMAL(5, 2),

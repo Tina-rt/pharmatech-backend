@@ -9,6 +9,7 @@ const {
   getPanier,
   validerPanier,
   fermerPanier,
+  getTousPanier,
 } = require("../controller/panierController");
 
 const router = require("express").Router();
@@ -17,7 +18,9 @@ const router = require("express").Router();
 
 router.route("/").get(authentification, getPanier);
 router.route("/valider").post(authentification, validerPanier);
+router.route("/liste").get(authentification, getTousPanier);
 router.route("/fermer").post(authentification, fermerPanier);
+
 router
   .route("/:id")
   .post(authentification, ajouterAuPanier)

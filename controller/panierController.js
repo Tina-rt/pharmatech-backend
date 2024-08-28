@@ -123,11 +123,75 @@ const getPanier = catchAsync(async (req, res, next) => {
     status: "success",
     data: produitsAvecTVA,
     total_panier: {
+      statut: panierExistant.statut,
       total_sans_TVA: totalSansTVA.toFixed(2),
       total_TVA: totalTVA.toFixed(2),
       total_avec_TVA: totalAvecTVA.toFixed(2),
     },
     message: "Voici le contenu de votre panier",
+  });
+});
+
+const getTousPanier = catchAsync(async (req, res, next) => {
+  const utilisateurId = req.utilisateur.id;
+
+  const panierExistant = await panier.findOne({
+    where: { utilisateur_id: utilisateurId },
+  });
+
+  if (!panierExistant) {
+    return next(new AppError("Vous n'avez pas de panier", 400));
+  }
+
+  const panierProduits = await panierProduit.findAll({
+    where: { panier_id: panierExistant.id },
+    include: [
+      {
+        model: produit,
+        attributes: ["nom", "prix", "image", "tva_pourcentage"],
+      },
+    ],
+  });
+
+  // Initialiser les totaux
+  let totalSansTVA = 0;
+  let totalTVA = 0;
+  let totalAvecTVA = 0;
+
+  // Calculer le prix total avec TVA pour chaque produit
+  const produitsAvecTVA = panierProduits.map((item) => {
+    const prixTotal = item.quantite * item.produit.prix;
+    const prixTVA = prixTotal * (item.produit.tva_pourcentage / 100);
+    const prixTotalAvecTVA = prixTotal + prixTVA;
+
+    // Ajouter aux totaux
+    totalSansTVA += prixTotal;
+    totalTVA += prixTVA;
+    totalAvecTVA += prixTotalAvecTVA;
+
+    return {
+      id: item.produit.id,
+      nom: item.produit.nom,
+      image: item.produit.image,
+      prix_unitaire: item.produit.prix,
+      quantite: item.quantite,
+      TVA: item.produit.tva_pourcentage,
+      prix_total: prixTotal.toFixed(2),
+      prix_TVA: prixTVA.toFixed(2),
+      prix_total_avec_TVA: prixTotalAvecTVA.toFixed(2),
+    };
+  });
+
+  return res.status(200).json({
+    status: "success",
+    data: produitsAvecTVA,
+    total_panier: {
+      statut: panierExistant.statut,
+      total_sans_TVA: totalSansTVA.toFixed(2),
+      total_TVA: totalTVA.toFixed(2),
+      total_avec_TVA: totalAvecTVA.toFixed(2),
+    },
+    message: "Voici tous les paniers",
   });
 });
 
@@ -235,6 +299,7 @@ const fermerPanier = catchAsync(async (req, res, next) => {
 module.exports = {
   ajouterAuPanier,
   getPanier,
+  getTousPanier,
   mettreAJourQuantite,
   supprimerDuPanier,
   validerPanier,

@@ -5,6 +5,7 @@ const commande = require("../db/models/commande");
 
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
+const commandeProduit = require("../db/models/commandeproduit");
 
 // Créer une nouvelle commande
 const creerCommande = catchAsync(async (req, res, next) => {
@@ -25,7 +26,7 @@ const creerCommande = catchAsync(async (req, res, next) => {
     include: [
       {
         model: produit,
-        attributes: ["nom", "prix", "tva_pourcentage", "quantite_stock"],
+        attributes: ["nom", "prix", "tva_pourcentage", "stock"],
       },
     ],
   });
@@ -34,22 +35,10 @@ const creerCommande = catchAsync(async (req, res, next) => {
     return next(new AppError("Le panier est vide", 400));
   }
 
-  // Vérifier la disponibilité des produits en stock
-  for (const item of panierProduits) {
-    const produitStock = await produit.findByPk(item.produit_id);
-    if (item.quantite > produitStock.quantite_stock) {
-      return next(
-        new AppError(
-          `La quantité demandée pour le produit ${produitStock.nom} dépasse le stock disponible`,
-          400
-        )
-      );
-    }
-  }
-
   // Créer une commande
   const nouvelleCommande = await commande.create({
     utilisateur_id: utilisateurId,
+    panier_id: panierExistant.id,
     statut: "en cours",
     montant_total: panierProduits.reduce((acc, item) => {
       const prixTotal = item.quantite * item.produit.prix;
@@ -60,15 +49,17 @@ const creerCommande = catchAsync(async (req, res, next) => {
 
   // Ajouter les produits à la commande
   await Promise.all(
-    panierProduits.map((item) =>
-      commandeProduit.create({
+    panierProduits.map(async (item) => {
+      await commandeProduit.create({
         commande_id: nouvelleCommande.id,
         produit_id: item.produit_id,
         quantite: item.quantite,
         prix_unitaire: item.produit.prix,
-        prix_TVA: item.produit.prix * (item.produit.tva_pourcentage / 100),
-      })
-    )
+        prixHTtotal: prix_unitaire * quantite,
+        tva_poucentage: item.produit.tva_pourcentage,
+        prixTVA: prixHTtotal * (item.produit.tva_pourcentage / 100),
+      });
+    })
   );
 
   // Mettre à jour le statut du panier

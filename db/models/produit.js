@@ -2,6 +2,7 @@
 const { Model, Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../../config/database");
 const panierProduit = require("./panierproduit");
+const commandeProduit = require("./commandeproduit");
 const produit = sequelize.define(
   "produit",
   {
@@ -35,21 +36,6 @@ const produit = sequelize.define(
       validate: {
         notNull: {
           msg: "Veuillez mettre le prix unitaire de ce produit",
-        },
-      },
-    },
-    stock: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        min: {
-          args: [0],
-          msg: "Le stock de ce produit ne peut pas être négatif",
-        },
-        estVide(value) {
-          if (value === 0) {
-            throw new Error("Le stock de ce produit est totalement vide");
-          }
         },
       },
     },
@@ -92,7 +78,6 @@ const produit = sequelize.define(
     reduction: {
       type: DataTypes.DECIMAL(5, 2),
       defaultValue: 0.0,
-      allowNull: false,
       validate: {
         isDecimal: {
           msg: "La valeur de la reduction du produit est en decimal",
@@ -127,4 +112,8 @@ const produit = sequelize.define(
 
 produit.hasMany(panierProduit, { foreignKey: "produit_id" });
 panierProduit.belongsTo(produit, { foreignKey: "produit_id" });
+
+produit.hasMany(commandeProduit, { foreignKey: "produit_id" });
+commandeProduit.belongsTo(produit, { foreignKey: "produit_id" });
+
 module.exports = produit;

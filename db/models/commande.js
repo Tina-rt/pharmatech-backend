@@ -4,6 +4,7 @@ const sequelize = require("../../config/database");
 const paiement = require("./paiement");
 const livraison = require("./livraison");
 const facture = require("./facture");
+const commandeProduit = require("./commandeproduit");
 
 const commande = sequelize.define(
   "commande",
@@ -83,5 +84,8 @@ livraison.belongsTo(commande, { foreignKey: "commande_id" });
 
 commande.hasOne(facture, { foreignKey: "commande_id" });
 facture.belongsTo(commande, { foreignKey: "commande_id" });
+
+commande.hasMany(commandeProduit, { foreignKey: "commande_id" });
+commandeProduit.belongsTo(commande, { foreignKey: "commande_id" });
 
 module.exports = commande;
