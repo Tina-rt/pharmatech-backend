@@ -49,7 +49,7 @@ const commandeProduit = sequelize.define(
       type: DataTypes.DECIMAL,
       allowNull: false,
     },
-    tva_poucentage: {
+    tva_pourcentage: {
       type: DataTypes.DECIMAL,
       allowNull: false,
     },

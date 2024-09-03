@@ -115,13 +115,13 @@ const livraison = sequelize.define(
   }
 );
 
-livraison.belongsTo(methodeLivraison, {
-  foreignKey: "methode_livraison_id",
-  as: "methodeLivraison",
-});
 methodeLivraison.hasMany(livraison, {
   foreignKey: "methode_livraison_id",
   as: "livraison",
+});
+livraison.belongsTo(methodeLivraison, {
+  foreignKey: "methode_livraison_id",
+  as: "methodeLivraison",
 });
 
 module.exports = livraison;

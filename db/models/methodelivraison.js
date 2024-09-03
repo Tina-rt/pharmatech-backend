@@ -1,6 +1,7 @@
 "use strict";
 const { Model, Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../../config/database");
+const livraison = require("./livraison");
 
 const methodeLivraison = sequelize.define(
   "methodeLivraison",

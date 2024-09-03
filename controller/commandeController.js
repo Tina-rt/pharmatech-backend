@@ -55,9 +55,12 @@ const creerCommande = catchAsync(async (req, res, next) => {
         produit_id: item.produit_id,
         quantite: item.quantite,
         prix_unitaire: item.produit.prix,
-        prixHTtotal: prix_unitaire * quantite,
-        tva_poucentage: item.produit.tva_pourcentage,
-        prixTVA: prixHTtotal * (item.produit.tva_pourcentage / 100),
+        prixHTtotal: item.produit.prix * item.quantite,
+        tva_pourcentage: item.produit.tva_pourcentage,
+        prixTVA:
+          item.produit.prix *
+          item.quantite *
+          (item.produit.tva_pourcentage / 100),
       });
     })
   );
@@ -79,16 +82,103 @@ const getCommandesUtilisateur = catchAsync(async (req, res, next) => {
 
   const commandes = await commande.findAll({
     where: { utilisateur_id: utilisateurId },
-    include: [{ model: panier }],
+    include: [
+      {
+        model: commandeProduit,
+        include: [
+          {
+            model: produit,
+            attributes: ["nom", "prix", "tva_pourcentage"],
+          },
+        ],
+      },
+    ],
   });
 
   if (!commandes.length) {
     return next(new AppError("Aucune commande trouvée", 404));
   }
 
+  // Transformer les données en fonction des besoins
+  const resultats = commandes
+    .map((commande) => {
+      return commande.commandeProduits.map((cp) => {
+        const prixUnitaire = cp.produit.prix;
+        const quantiteCommandee = cp.quantite;
+        const TVA = cp.produit.tva_pourcentage;
+        const prixHT = prixUnitaire * quantiteCommandee;
+        const prixAvecTVA = prixHT * (1 + TVA / 100);
+
+        return {
+          idCommande: commande.id,
+          idProduit: cp.produit_id,
+          nomProduit: cp.produit.nom,
+          quantiteCommandee: quantiteCommandee,
+          prixUnitaire: prixUnitaire,
+          TVA: TVA,
+          prixAvecTVA: prixAvecTVA,
+        };
+      });
+    })
+    .flat();
+
   return res.status(200).json({
     status: "success",
-    data: commandes,
+    data: resultats,
+    message: "Voici les commandes de l'utilisateur",
+  });
+});
+
+/*                          Récupérer les commandes d'un utilisateur                     */
+const getCommandesUtilisateurId = catchAsync(async (req, res, next) => {
+  const utilisateurId = req.utilisateur.id;
+  const commandeId = req.params.id;
+
+  const commandes = await commande.findAll({
+    where: { utilisateur_id: utilisateurId, id: commandeId },
+    include: [
+      {
+        model: commandeProduit,
+        include: [
+          {
+            model: produit,
+            attributes: ["nom", "prix", "tva_pourcentage"],
+          },
+        ],
+      },
+    ],
+  });
+
+  if (!commandes.length) {
+    return next(new AppError("Aucune commande trouvée", 404));
+  }
+
+  // Transformer les données en fonction des besoins
+  const resultats = commandes
+    .map((commande) => {
+      return commande.commandeProduits.map((cp) => {
+        const prixUnitaire = cp.produit.prix;
+        const quantiteCommandee = cp.quantite;
+        const TVA = cp.produit.tva_pourcentage;
+        const prixHT = prixUnitaire * quantiteCommandee;
+        const prixAvecTVA = prixHT * (1 + TVA / 100);
+
+        return {
+          idCommande: commande.id,
+          idProduit: cp.produit_id,
+          nomProduit: cp.produit.nom,
+          quantiteCommandee: quantiteCommandee,
+          prixUnitaire: prixUnitaire,
+          TVA: TVA,
+          prixAvecTVA: prixAvecTVA,
+        };
+      });
+    })
+    .flat();
+
+  return res.status(200).json({
+    status: "success",
+    data: resultats,
     message: "Voici les commandes de l'utilisateur",
   });
 });
@@ -124,5 +214,6 @@ const mettreAJourStatutCommande = catchAsync(async (req, res, next) => {
 module.exports = {
   creerCommande,
   getCommandesUtilisateur,
+  getCommandesUtilisateurId,
   mettreAJourStatutCommande,
 };

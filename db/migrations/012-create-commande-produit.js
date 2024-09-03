@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("commandeProduits", {
+    await queryInterface.createTable("commandeProduit", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -32,7 +32,7 @@ module.exports = {
       prixHTtotal: {
         type: Sequelize.DECIMAL,
       },
-      tva_poucentage: {
+      tva_pourcentage: {
         type: Sequelize.DECIMAL,
       },
       prixTVA: {
@@ -46,9 +46,12 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
+      deletedAt: {
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("commandeProduits");
+    await queryInterface.dropTable("commandeProduit");
   },
 };

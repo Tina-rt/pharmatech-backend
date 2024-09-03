@@ -29,7 +29,7 @@ router
 router
   .route("/:id")
   .get(authentification, getProduitId)
-  .put(
+  .patch(
     authentification,
     restriction("admin"),
     upload.single("image"),

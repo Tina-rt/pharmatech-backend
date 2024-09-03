@@ -6,6 +6,7 @@ const {
   creerCommande,
   getCommandesUtilisateur,
   mettreAJourStatutCommande,
+  getCommandesUtilisateurId,
 } = require("../controller/commandeController");
 
 const router = require("express").Router();
@@ -17,6 +18,9 @@ router
   .post(authentification, creerCommande)
   .get(authentification, getCommandesUtilisateur);
 
-router.route("/:id").patch(authentification, mettreAJourStatutCommande);
+router
+  .route("/:id")
+  .patch(authentification, mettreAJourStatutCommande)
+  .get(authentification, getCommandesUtilisateurId);
 
 module.exports = router;

@@ -11,6 +11,9 @@ const produitRouter = require("./route/produitRoute");
 const categorieRouter = require("./route/categorieRoute");
 const panierRouter = require("./route/panierRoute");
 const commandeRouter = require("./route/commandeRoute");
+const methodeLivraisonRouter = require("./route/methodeLivraisonRoute");
+const LivraisonRouter = require("./route/livraisonRoute");
+
 const catchAsync = require("./utils/catchAsync");
 const AppError = require("./utils/appError");
 const { stack } = require("sequelize/lib/utils");
@@ -29,6 +32,9 @@ app.use("/api/produit", produitRouter); //route pour produit
 app.use("/api/categorie", categorieRouter); //route pour categorie
 app.use("/api/panier", panierRouter); //route pour panier
 app.use("/api/commande", commandeRouter); //route pour commande
+app.use("/api/methodeLivraison", methodeLivraisonRouter); //route pour methode livraison
+app.use("/api/livraison", LivraisonRouter); //route pour  livraison
+
 //Route indisponnible
 app.use(
   "*",
