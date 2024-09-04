@@ -4,6 +4,7 @@ const commande = require("../db/models/commande");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const methodeLivraison = require("../db/models/methodelivraison");
+const { where } = require("sequelize");
 
 // Configuration de Multer pour le stockage des images
 const storage = multer.diskStorage({
@@ -21,8 +22,20 @@ const upload = multer({ storage: storage });
 const creerLivraison = catchAsync(async (req, res, next) => {
   const body = req.body;
 
+  // Vérifier si la livraison existe
+  const LivraisonExistante = await livraison.findOne({
+    where: {
+      commande_id: body.commande_id,
+    },
+  });
+  if (LivraisonExistante) {
+    return next(new AppError("Livrason deja effectuee", 404));
+  }
+
   // Vérifier si la commande existe
-  const commandeExistante = await commande.findByPk(body.commande_id);
+  const commandeExistante = await commande.findOne({
+    where: { id: body.commande_id, utilisateur_id: req.utilisateur.id },
+  });
 
   if (!commandeExistante) {
     return next(new AppError("Commande introuvable", 404));
@@ -60,6 +73,7 @@ const getToutesLivraisons = catchAsync(async (req, res, next) => {
       {
         model: commande,
         attributes: ["id", "utilisateur_id", "date_commande", "statut"],
+        where: { utilisateur_id: req.utilisateur.id },
       },
       {
         model: methodeLivraison,
@@ -82,7 +96,12 @@ const getToutesLivraisons = catchAsync(async (req, res, next) => {
 
 // Récupérer les livraisons associées à une commande
 const getLivraisonsParCommande = catchAsync(async (req, res, next) => {
-  const { commande_id } = req.params;
+  const commande_id = req.params.id;
+
+  // Vérifier si la commande existe
+  const commandeExistante = await commande.findOne({
+    where: { id: commande_id, utilisateur_id: req.utilisateur.id },
+  });
 
   const livraisons = await livraison.findAll({
     where: { commande_id },
@@ -103,8 +122,8 @@ const getLivraisonsParCommande = catchAsync(async (req, res, next) => {
 
 // Mettre à jour le statut d'une livraison
 const mettreAJourStatutLivraison = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const { statut_livraison } = req.body;
+  const id = req.params.id;
+  const statut_livraison = req.body.statut_livraison;
 
   if (
     !["En attente", "En transit", "Livree", "Retour"].includes(statut_livraison)

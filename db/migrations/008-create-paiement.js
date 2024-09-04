@@ -11,6 +11,12 @@ module.exports = {
       },
       commande_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: "commande",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       montant: {
         type: Sequelize.DECIMAL,

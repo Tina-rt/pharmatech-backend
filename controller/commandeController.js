@@ -6,6 +6,7 @@ const commande = require("../db/models/commande");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const commandeProduit = require("../db/models/commandeproduit");
+const livraison = require("../db/models/livraison");
 
 // Créer une nouvelle commande
 const creerCommande = catchAsync(async (req, res, next) => {
@@ -211,9 +212,52 @@ const mettreAJourStatutCommande = catchAsync(async (req, res, next) => {
   });
 });
 
+/*                          Supprimer une commande ainsi que ses commandeProduits                     */
+const supprimerCommandesUtilisateurId = catchAsync(async (req, res, next) => {
+  const utilisateurId = req.utilisateur.id;
+  const commandeId = req.params.id;
+
+  const commandes = await commande.findOne({
+    where: { utilisateur_id: utilisateurId, id: commandeId },
+    include: [
+      {
+        model: commandeProduit,
+        include: [
+          {
+            model: produit,
+            attributes: ["nom", "prix", "tva_pourcentage"],
+          },
+        ],
+      },
+    ],
+  });
+
+  if (!commandes) {
+    return next(new AppError("Aucune commande trouvée", 404));
+  }
+
+  await commandeProduit.destroy({
+    where: { commande_id: commandeId },
+  });
+
+  await livraison.destroy({
+    where: { commande_id: commandeId },
+  });
+
+  await commande.destroy({
+    where: { id: commandeId, utilisateur_id: utilisateurId },
+  });
+
+  return res.status(204).json({
+    status: "success",
+    message: "Commande et ses produits supprimés avec succès",
+  });
+});
+
 module.exports = {
   creerCommande,
   getCommandesUtilisateur,
   getCommandesUtilisateurId,
   mettreAJourStatutCommande,
+  supprimerCommandesUtilisateurId,
 };
