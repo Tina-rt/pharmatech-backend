@@ -824,7 +824,6 @@ COPY public.produit (id, nom, description, prix, image, categorie_id, marque, nu
 
 COPY public.utilisateur (id, nom, prenom, email, motdepasse, phone, role, "createdAt", "updatedAt", "deletedAt") FROM stdin;
 3	ADMIN	Admin	rakotomaroharilala5@gmail.com	$2b$10$7A4rexRo0r9CVJm5SzP1..A3TsRelWQ74D56un6lH5KnPWBd/8i5K	0340417324	admin	2024-09-06 00:25:16.968+02	2024-09-06 00:25:16.968+02	\N
-8	RAKOTOMARO	Harilala	harilalarakotomaro@gmail.com	$2b$10$OQKXQiexaYt0RwNYZOqpDO/Lp728FRCmLKwX3q0KgFciIrLwykV0e	0340417324	client	2024-09-06 01:36:25.264+02	2024-09-06 01:36:25.264+02	\N
 \.
 
 
