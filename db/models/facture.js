@@ -2,7 +2,7 @@
 const { Model, Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../../config/database");
 
-module.exports = sequelize.define(
+const facture = sequelize.define(
   "facture",
   {
     id: {
@@ -108,3 +108,5 @@ module.exports = sequelize.define(
     modelName: "facture",
   }
 );
+
+module.exports = facture;

@@ -10,7 +10,10 @@ const AppError = require("../utils/appError");
 
 // Configuration du transporteur de courrier électronique
 const transporter = nodemailer.createTransport({
-  service: "Gmail",
+  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -59,6 +62,60 @@ const inscription = catchAsync(async (req, res, next) => {
 
   resultat.token = generateToken({
     id: resultat.id,
+  });
+
+  // Envoi d'un email de confirmation
+  await transporter.sendMail({
+    from: {
+      name: "PHARMATECH",
+      address: process.env.EMAIL_USER,
+    },
+    to: body.email, // liste des destinataires
+    subject: "Inscription sur PHARMATECH", // ligne de sujet
+    text: "Bienvenue chez PHARMATECH", // corps du texte brut
+    html: `
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        h1 {
+            color: #2ecc71; /* Vert clair */
+            font-size: 2em;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        p {
+            font-size: 1em;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Soyez la bienvenue chez PHARMATECH</h1>
+          <p>Nous sommes ravis de vous accueillir dans notre communauté.</p>
+          <p>Merci de vous être inscrit. Nous avons hâte de vous servir.</p>
+        </div>
+      </body>
+    </html>
+  `, // corps HTML
   });
 
   return res.status(201).json({
@@ -161,10 +218,106 @@ const authentification = catchAsync(async (req, res, next) => {
   return next();
 });
 
+/*                         RECUPERATION COMPTE                         */
+const motdepasseoublie = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+
+  const utilisateurExistant = await utilisateur.findOne({
+    where: { email },
+  });
+
+  if (!utilisateurExistant) {
+    return next(new AppError("Aucun utilisateur trouvé avec cet email", 404));
+  }
+
+  const resetToken = generateToken({ id: utilisateurExistant.id });
+  const resetUrl = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/utilisateurs/resetPassword/${resetToken}`;
+
+  const message = `. Veuillez cliquer sur ce lien : ${resetUrl}`;
+
+  // Envoi d'un email de confirmation
+  await transporter.sendMail({
+    from: {
+      name: "PHARMATECH",
+      address: process.env.EMAIL_USER,
+    },
+    to: utilisateurExistant.email, // liste des destinataires
+    subject: "Réinitialisation de votre mot de passe", // ligne de sujet
+    text: message, // corps du texte brut
+    html: `
+  <html>
+    <head>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+          color: #333;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+        }
+        .container {
+          background-color: #fff;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          text-align: center;
+          max-width: 600px;
+          width: 100%;
+        }
+        h1 {
+          color: #2ecc71; /* Vert clair */
+          font-size: 1.5em;
+          margin-bottom: 20px;
+          font-weight: 700;
+        }
+        p {
+          font-size: 1em;
+          line-height: 1.5;
+          margin-bottom: 20px;
+        }
+        a {
+          color: #007BFF; /* Bleu pour le lien */
+          text-decoration: none;
+          font-weight: bold;
+        }
+        a:hover {
+          text-decoration: underline;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>Réinitialisation de mot de passe</h1>
+        <p>Bonjour,</p>
+        <p>Vous avez demandé à réinitialiser votre mot de passe pour votre compte PHARMATECH.</p>
+        <p>Veuillez cliquer sur le lien ci-dessous pour créer un nouveau mot de passe :</p>
+        <p><a href="${resetUrl}">Réinitialiser mon mot de passe</a></p>
+        <p>Si vous n'avez pas demandé cette réinitialisation, veuillez ignorer cet email.</p>
+        <p>Merci,</p>
+        <p>L'équipe PHARMATECH</p>
+      </div>
+    </body>
+  </html>
+  `, // corps HTML
+  });
+
+  return res.status(200).json({
+    status: "Success",
+    message: "Email de réinitialisation envoyé",
+  });
+});
+
 module.exports = {
   inscription,
   connexion,
   deconnexion,
   authentification,
   restriction,
+  motdepasseoublie,
 };
