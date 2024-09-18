@@ -8,6 +8,7 @@ const {
   mettreAJourStatutCommande,
   getCommandesUtilisateurId,
   supprimerCommandesUtilisateurId,
+  getCommandesUtilisateurs,
 } = require("../controller/commandeController");
 
 const router = require("express").Router();
@@ -18,6 +19,10 @@ router
   .route("/")
   .post(authentification, creerCommande)
   .get(authentification, getCommandesUtilisateur);
+
+router
+  .route("/liste")
+  .get(authentification, restriction("admin"), getCommandesUtilisateurs);
 
 router
   .route("/:id")

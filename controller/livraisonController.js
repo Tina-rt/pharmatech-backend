@@ -5,6 +5,9 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const methodeLivraison = require("../db/models/methodelivraison");
 const { where } = require("sequelize");
+const utilisateur = require("../db/models/utilisateur");
+const commandeProduit = require("../db/models/commandeproduit");
+const produit = require("../db/models/produit");
 
 // Configuration de Multer pour le stockage des images
 const storage = multer.diskStorage({
@@ -94,6 +97,94 @@ const getToutesLivraisons = catchAsync(async (req, res, next) => {
   });
 });
 
+const getToutesLesLivraisonsProduitsParUtilisateur = catchAsync(
+  async (req, res, next) => {
+    // Requête pour récupérer toutes les livraisons associées aux commandes avec les utilisateurs et les produits
+    const livraisons = await livraison.findAll({
+      include: [
+        {
+          model: commande, // Inclure les commandes associées à chaque livraison
+          attributes: ["id", "utilisateur_id"], // On prend les attributs nécessaires des commandes
+          include: [
+            {
+              model: commandeProduit, // Inclure les produits de chaque commande
+              include: [
+                {
+                  model: produit, // Inclure les informations sur les produits
+                  attributes: ["id", "nom", "prix", "tva_pourcentage"],
+                },
+              ],
+            },
+            {
+              model: utilisateur, // Inclure les informations de chaque utilisateur
+              attributes: ["id", "nom", "prenom", "email"],
+            },
+          ],
+        },
+      ],
+    });
+
+    // Vérifier si des livraisons existent
+    if (!livraisons.length) {
+      return next(new AppError("Aucune livraison trouvée", 404));
+    }
+
+    // Structurer les résultats par utilisateur
+    const livraisonsParUtilisateur = livraisons.reduce((acc, livraison) => {
+      const utilisateurId = livraison.commande.utilisateur.id;
+      const utilisateurInfo = {
+        id: livraison.commande.utilisateur.id,
+        nom: livraison.commande.utilisateur.nom,
+        prenom: livraison.commande.utilisateur.prenom,
+        email: livraison.commande.utilisateur.email,
+      };
+
+      // Si l'utilisateur n'existe pas encore dans l'accumulateur, on l'ajoute
+      if (!acc[utilisateurId]) {
+        acc[utilisateurId] = {
+          utilisateur: utilisateurInfo,
+          commandes: [],
+        };
+      }
+
+      // Ajouter la commande et les produits associés
+      const produitsDansCommande = livraison.commande.commandeProduits.map(
+        (cp) => {
+          const prixUnitaire = cp.produit.prix;
+          const TVA = cp.produit.tva_pourcentage;
+          const quantiteCommandee = cp.quantite;
+          const prixAvecTVA =
+            prixUnitaire * quantiteCommandee * (1 + TVA / 100);
+
+          return {
+            idProduit: cp.produit.id,
+            nomProduit: cp.produit.nom,
+            quantiteCommandee: quantiteCommandee,
+            prixUnitaire: prixUnitaire,
+            TVA: TVA,
+            prixAvecTVA: prixAvecTVA,
+          };
+        }
+      );
+
+      acc[utilisateurId].commandes.push({
+        idCommande: livraison.commande.id,
+        livraisonId: livraison.id,
+        produits: produitsDansCommande,
+      });
+
+      return acc;
+    }, {});
+
+    return res.status(200).json({
+      status: "success",
+      data: livraisonsParUtilisateur,
+      message:
+        "Voici toutes les livraisons et produits associés, classées par utilisateur",
+    });
+  }
+);
+
 // Récupérer les livraisons associées à une commande
 const getLivraisonsParCommande = catchAsync(async (req, res, next) => {
   const commande_id = req.params.id;
@@ -103,6 +194,9 @@ const getLivraisonsParCommande = catchAsync(async (req, res, next) => {
     where: { id: commande_id, utilisateur_id: req.utilisateur.id },
   });
 
+  if (!commandeExistante) {
+    return next(new AppError("Commande introuvable", 404));
+  }
   const livraisons = await livraison.findAll({
     where: { commande_id },
   });
@@ -149,6 +243,7 @@ const mettreAJourStatutLivraison = catchAsync(async (req, res, next) => {
 module.exports = {
   creerLivraison,
   getLivraisonsParCommande,
+  getToutesLesLivraisonsProduitsParUtilisateur,
   getToutesLivraisons,
   mettreAJourStatutLivraison,
   upload,

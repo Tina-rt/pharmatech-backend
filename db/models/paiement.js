@@ -2,7 +2,7 @@
 const { Model, Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../../config/database");
 
-module.exports = sequelize.define(
+const paiement = sequelize.define(
   "paiement",
   {
     id: {
@@ -66,6 +66,15 @@ module.exports = sequelize.define(
         },
       },
     },
+    reference: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: "Veuillez mettre la references du paiements",
+        },
+      },
+    },
     createdAt: {
       allowNull: false,
       type: DataTypes.DATE,
@@ -84,3 +93,5 @@ module.exports = sequelize.define(
     modelName: "paiement",
   }
 );
+
+module.exports = paiement;

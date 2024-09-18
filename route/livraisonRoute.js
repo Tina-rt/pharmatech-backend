@@ -9,6 +9,7 @@ const {
   mettreAJourStatutLivraison,
   upload,
   getToutesLivraisons,
+  getToutesLesLivraisonsProduitsParUtilisateur,
 } = require("../controller/livraisonController");
 
 const router = require("express").Router();
@@ -19,6 +20,13 @@ router
   .post(authentification, upload.single("prescription"), creerLivraison)
   .get(authentification, getToutesLivraisons);
 
+router
+  .route("/liste")
+  .get(
+    authentification,
+    restriction("admin"),
+    getToutesLesLivraisonsProduitsParUtilisateur
+  );
 router
   .route("/:id")
   .get(authentification, getLivraisonsParCommande)

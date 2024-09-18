@@ -13,6 +13,8 @@ const panierRouter = require("./route/panierRoute");
 const commandeRouter = require("./route/commandeRoute");
 const methodeLivraisonRouter = require("./route/methodeLivraisonRoute");
 const LivraisonRouter = require("./route/livraisonRoute");
+const factureRouter = require("./route/factureRoute");
+const paiementRouter = require("./route/paiementRoute");
 
 const catchAsync = require("./utils/catchAsync");
 const AppError = require("./utils/appError");
@@ -34,6 +36,8 @@ app.use("/api/panier", panierRouter); //route pour panier
 app.use("/api/commande", commandeRouter); //route pour commande
 app.use("/api/methodeLivraison", methodeLivraisonRouter); //route pour methode livraison
 app.use("/api/livraison", LivraisonRouter); //route pour  livraison
+app.use("/api/facture", factureRouter); //route pour methode livraison
+//app.use("/api/paiement", paiementRouter); //route pour  livraison
 
 //Route indisponnible
 app.use(

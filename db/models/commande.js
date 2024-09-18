@@ -44,15 +44,15 @@ const commande = sequelize.define(
       type: Sequelize.ENUM(
         "en attente",
         "en cours",
-        "expédiée",
-        "livrée",
-        "annulée"
+        "expediee",
+        "livree",
+        "annulee"
       ),
       allowNull: false,
       defaultValue: "en attente",
       validate: {
         isIn: {
-          args: [["en attente", "en cours", "expédiée", "livrée", "annulée"]],
+          args: [["en attente", "en cours", "expediee", "livree", "annulee"]],
           msg: "Le statut de la commande n'est pas valide.",
         },
       },

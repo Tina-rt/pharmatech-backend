@@ -22,7 +22,7 @@ const facture = sequelize.define(
       onDelete: "CASCADE",
       validate: {
         notEmpty: {
-          msg: "La référence de la commande est requise.",
+          msg: "La reference de la commande est requise.",
         },
       },
     },
@@ -32,11 +32,11 @@ const facture = sequelize.define(
       unique: true,
       validate: {
         notEmpty: {
-          msg: "Le numéro de la facture est requis.",
+          msg: "Le numero de la facture est requis.",
         },
         len: {
           args: [5, 50],
-          msg: "Le numéro de la facture doit comporter entre 5 et 50 caractères.",
+          msg: "Le numero de la facture doit comporter entre 5 et 50 caracteres.",
         },
       },
     },
@@ -45,42 +45,42 @@ const facture = sequelize.define(
       allowNull: false,
       validate: {
         isDate: {
-          msg: "La date d'émission doit être une date valide.",
+          msg: "La date d'emission doit être une date valide.",
         },
         notEmpty: {
-          msg: "La date d'émission est requise.",
+          msg: "La date d'emission est requise.",
         },
       },
       defaultValue: DataTypes.NOW,
     },
     montant_total: {
-      type: DataTypes.DECIMAL(10, 2),
+      type: DataTypes.DECIMAL(20, 2),
       allowNull: false,
       validate: {
         isDecimal: {
-          msg: "Le montant total doit être un nombre valide avec deux décimales.",
+          msg: "Le montant total doit être un nombre valide avec deux decimales.",
         },
         notEmpty: {
           msg: "Le montant total est requis.",
         },
         min: {
           args: [0],
-          msg: "Le montant total ne peut pas être négatif.",
+          msg: "Le montant total ne peut pas être negatif.",
         },
       },
     },
     statut_paiement: {
       type: DataTypes.ENUM(
         "en attente",
-        "payé",
-        "partiellement payé",
-        "remboursé"
+        "paye",
+        "partiellement paye",
+        "rembourse"
       ),
       allowNull: false,
       defaultValue: "en attente",
       validate: {
         isIn: {
-          args: [["en attente", "payé", "partiellement payé", "remboursé"]],
+          args: [["en attente", "paye", "partiellement paye", "rembourse"]],
           msg: "Le statut de paiement n'est pas valide.",
         },
         notEmpty: {

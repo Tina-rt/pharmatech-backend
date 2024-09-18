@@ -27,6 +27,10 @@ module.exports = {
       mode_paiement: {
         type: Sequelize.ENUM("carte", "virement", "mobile money"),
       },
+      reference: {
+        type: Sequelize.STRING(50),
+        allowNull: false,
+      },
       statut_paiement: {
         type: Sequelize.ENUM("en attente", "paye", "echec"),
         defaultValue: "en attente",
