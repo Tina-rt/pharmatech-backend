@@ -24,11 +24,11 @@ router
     upload.single("image"),
     creerProduit
   )
-  .get(authentification, getProduits);
+  .get(getProduits);
 
 router
   .route("/:id")
-  .get(authentification, getProduitId)
+  .get(getProduitId)
   .patch(
     authentification,
     restriction("admin"),
