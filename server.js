@@ -36,8 +36,9 @@ app.use("/api/panier", panierRouter); //route pour panier
 app.use("/api/commande", commandeRouter); //route pour commande
 app.use("/api/methodeLivraison", methodeLivraisonRouter); //route pour methode livraison
 app.use("/api/livraison", LivraisonRouter); //route pour  livraison
-app.use("/api/facture", factureRouter); //route pour methode livraison
-//app.use("/api/paiement", paiementRouter); //route pour  livraison
+app.use("/api/facture", factureRouter); //route pour methode facture
+//app.use("/api/paiement", paiementRouter); //route pour  paiement
+app.use("/upload", express.static(path.join(__dirname, "upload")));
 
 //Route indisponnible
 app.use(
