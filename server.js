@@ -1,6 +1,7 @@
 require("dotenv").config({ path: process.cwd() + "/.env" });
 
 const express = require("express");
+const path = require("path");
 const app = express();
 const port = process.env.APP_PORT;
 
@@ -38,6 +39,8 @@ app.use("/api/methodeLivraison", methodeLivraisonRouter); //route pour methode l
 app.use("/api/livraison", LivraisonRouter); //route pour  livraison
 app.use("/api/facture", factureRouter); //route pour methode facture
 //app.use("/api/paiement", paiementRouter); //route pour  paiement
+
+app.use("/upload", express.static(path.join(__dirname, "upload")));
 
 //Route indisponnible
 app.use(
