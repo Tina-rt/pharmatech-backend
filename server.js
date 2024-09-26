@@ -40,7 +40,7 @@ app.use("/api/livraison", LivraisonRouter); //route pour  livraison
 app.use("/api/facture", factureRouter); //route pour methode facture
 //app.use("/api/paiement", paiementRouter); //route pour  paiement
 
-app.use("/upload", express.static(path.join(__dirname, "upload")));
+app.use("/upload", express.static(path.join(__dirname, "uploads")));
 
 //Route indisponnible
 app.use(
