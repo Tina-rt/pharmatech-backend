@@ -3,9 +3,11 @@ require("dotenv").config({ path: process.cwd() + "/.env" });
 const express = require("express");
 const path = require("path");
 const app = express();
+const cors = require("cors");
 const port = process.env.APP_PORT;
 
 app.use(express.json());
+app.use(cors());
 
 const authRouter = require("./route/authRoute");
 const produitRouter = require("./route/produitRoute");
