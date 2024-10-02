@@ -10,12 +10,13 @@ const {
   modifierProduit,
   supprimerProduit,
   upload,
+  rechercherProduitParNom,
 } = require("../controller/produitController");
 
 const router = require("express").Router();
 
 // route pour les Produits
-
+router.route("/recherche").get(rechercherProduitParNom);
 router
   .route("/")
   .post(

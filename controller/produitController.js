@@ -2,6 +2,7 @@ const multer = require("multer");
 const produit = require("../db/models/produit");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+const { Op } = require("sequelize");
 
 // Configuration de Multer pour le stockage des images
 const storage = multer.diskStorage({
@@ -79,6 +80,28 @@ const getProduitId = catchAsync(async (req, res, next) => {
   });
 });
 
+// Recherche par nom
+const rechercherProduitParNom = catchAsync(async (req, res, next) => {
+  const nom = req.query.nom;
+
+  const resultat = await produit.findAll({
+    where: {
+      nom: {
+        [Op.iLike]: `%${nom}%`,
+      },
+    },
+  });
+
+  if (resultat.length === 0) {
+    return next(new AppError("Aucun produit trouvé avec ce nom", 404));
+  }
+  return res.json({
+    status: "success",
+    data: resultat,
+    message: "Voici les produits trouvés",
+  });
+});
+
 // Modifier produit
 const modifierProduit = catchAsync(async (req, res, next) => {
   const produitId = req.params.id;
@@ -137,6 +160,7 @@ module.exports = {
   creerProduit,
   getProduits,
   getProduitId,
+  rechercherProduitParNom,
   modifierProduit,
   supprimerProduit,
   upload, // Exportation de l'upload pour l'utiliser dans les routes
