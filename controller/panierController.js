@@ -85,7 +85,7 @@ const getPanier = catchAsync(async (req, res, next) => {
     include: [
       {
         model: produit,
-        attributes: ["nom", "prix", "image", "tva_pourcentage"],
+        attributes: ["id", "nom", "prix", "image", "tva_pourcentage"],
       },
     ],
   });
@@ -148,7 +148,7 @@ const getTousPanier = catchAsync(async (req, res, next) => {
     include: [
       {
         model: produit,
-        attributes: ["nom", "prix", "image", "tva_pourcentage"],
+        attributes: ["id", "nom", "prix", "image", "tva_pourcentage"],
       },
     ],
   });
