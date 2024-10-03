@@ -296,6 +296,35 @@ const fermerPanier = catchAsync(async (req, res, next) => {
   });
 });
 
+// Vider le panier
+const viderPanier = catchAsync(async (req, res, next) => {
+  const utilisateurId = req.utilisateur.id;
+
+  // Vérifier si un panier actif existe pour l'utilisateur
+  const panierExistant = await panier.findOne({
+    where: { utilisateur_id: utilisateurId, statut: "actif" },
+  });
+
+  if (!panierExistant) {
+    return next(new AppError("Vous n'avez pas de panier actif à vider", 400));
+  }
+
+  // Supprimer tous les produits du panier
+  await panierProduit.destroy({
+    where: { panier_id: panierExistant.id },
+  });
+
+  // Supprimer le panier lui-même
+  //await panier.destroy({
+  //where: { id: panierExistant.id },
+  //});
+
+  return res.status(200).json({
+    status: "success",
+    message: "Le panier a été vidé avec succès",
+  });
+});
+
 module.exports = {
   ajouterAuPanier,
   getPanier,
@@ -304,4 +333,5 @@ module.exports = {
   supprimerDuPanier,
   validerPanier,
   fermerPanier,
+  viderPanier,
 };
