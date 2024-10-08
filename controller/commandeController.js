@@ -103,9 +103,15 @@ const getCommandesUtilisateurs = catchAsync(async (req, res, next) => {
   }
 
   // Transformer les données en fonction des besoins
-  const resultats = commandes
-    .map((commande) => {
-      return commande.commandeProduits.map((cp) => {
+  const resultats = commandes.map((commande) => {
+    return {
+      idUtilisateur: commande.utilisateur.id, // ID de l'utilisateur
+      nomUtilisateur: commande.utilisateur.nom, // Nom de l'utilisateur
+      prenomUtilisateur: commande.utilisateur.prenom, // Prénom de l'utilisateur
+      emailUtilisateur: commande.utilisateur.email, // Email de l'utilisateur
+      idCommande: commande.id, // ID de la commande
+      dateCommande: commande.date, // Date de la commande
+      produits: commande.commandeProduits.map((cp) => {
         const prixUnitaire = cp.produit.prix;
         const quantiteCommandee = cp.quantite;
         const TVA = cp.produit.tva_pourcentage;
@@ -113,11 +119,6 @@ const getCommandesUtilisateurs = catchAsync(async (req, res, next) => {
         const prixAvecTVA = prixHT * (1 + TVA / 100);
 
         return {
-          idUtilisateur: commande.utilisateur.id, // ID de l'utilisateur
-          nomUtilisateur: commande.utilisateur.nom, // Nom de l'utilisateur
-          prenomUtilisateur: commande.utilisateur.prenom, // Nom de l'utilisateur
-          emailUtilisateur: commande.utilisateur.email, // email de l'utilisateur
-          idCommande: commande.id,
           idProduit: cp.produit_id,
           nomProduit: cp.produit.nom,
           quantiteCommandee: quantiteCommandee,
@@ -125,27 +126,14 @@ const getCommandesUtilisateurs = catchAsync(async (req, res, next) => {
           TVA: TVA,
           prixAvecTVA: prixAvecTVA,
         };
-      });
-    })
-    .flat();
-
-  // Classer les résultats par utilisateur puis par idCommande
-  const commandesClassees = resultats.reduce((acc, curr) => {
-    if (!acc[curr.emailUtilisateur]) {
-      acc[curr.emailUtilisateur] = {};
-    }
-    if (!acc[curr.emailUtilisateur][curr.idCommande]) {
-      acc[curr.emailUtilisateur][curr.idCommande] = [];
-    }
-    acc[curr.emailUtilisateur][curr.idCommande].push(curr);
-    return acc;
-  }, {});
+      }),
+    };
+  });
 
   return res.status(200).json({
     status: "success",
-    data: commandesClassees,
-    message:
-      "Voici les commandes de l'utilisateur classées par Utilisateur et idCommande",
+    data: resultats, // Retourner une liste d'objets
+    message: "Voici la liste des commandes avec les détails des utilisateurs.",
   });
 });
 
