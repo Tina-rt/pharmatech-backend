@@ -33,13 +33,33 @@ const creerUtilisateur = catchAsync(async (req, res, next) => {
 });
 
 // Lire tous les utilisateurs
-const getUtilisateurs = catchAsync(async (req, res, next) => {
-  const resultat = await utilisateur.findAll();
+const getUtilisateursClient = catchAsync(async (req, res, next) => {
+  const resultat = await utilisateur.findAll({
+    attributes: { exclude: ["motdepasse"] },
+    where: {
+      role: "client",
+    },
+  });
 
   return res.json({
     status: "success",
     data: resultat,
-    message: "Voici la liste de tous les utilisateurs",
+    message: "Voici la liste de tous les clients",
+  });
+});
+
+const getUtilisateursAdmin = catchAsync(async (req, res, next) => {
+  const resultat = await utilisateur.findAll({
+    attributes: { exclude: ["motdepasse"] },
+    where: {
+      role: "Admin",
+    },
+  });
+
+  return res.json({
+    status: "success",
+    data: resultat,
+    message: "Voici la liste de tous les utilisateurs Admin",
   });
 });
 
@@ -109,7 +129,8 @@ const supprimerUtilisateur = catchAsync(async (req, res, next) => {
 
 module.exports = {
   creerUtilisateur,
-  getUtilisateurs,
+  getUtilisateursClient,
+  getUtilisateursAdmin,
   getUtilisateurId,
   modifierUtilisateur,
   supprimerUtilisateur,

@@ -172,10 +172,17 @@ const getCommandesUtilisateur = catchAsync(async (req, res, next) => {
     return next(new AppError("Aucune commande trouvée", 404));
   }
 
-  // Transformer les données en fonction des besoins
-  const resultats = commandes
-    .map((commande) => {
-      return commande.commandeProduits.map((cp) => {
+  // Transformer les données pour obtenir la structure souhaitée
+  const resultats = commandes.map((commande) => {
+    return {
+      idCommande: commande.id,
+      date: commande.date_commande,
+      user: {
+        id: req.utilisateur.id,
+        nom: req.utilisateur.nom,
+        email: req.utilisateur.email,
+      },
+      commande: commande.commandeProduits.map((cp) => {
         const prixUnitaire = cp.produit.prix;
         const quantiteCommandee = cp.quantite;
         const TVA = cp.produit.tva_pourcentage;
@@ -183,7 +190,6 @@ const getCommandesUtilisateur = catchAsync(async (req, res, next) => {
         const prixAvecTVA = prixHT * (1 + TVA / 100);
 
         return {
-          idCommande: commande.id,
           idProduit: cp.produit_id,
           nomProduit: cp.produit.nom,
           quantiteCommandee: quantiteCommandee,
@@ -191,23 +197,15 @@ const getCommandesUtilisateur = catchAsync(async (req, res, next) => {
           TVA: TVA,
           prixAvecTVA: prixAvecTVA,
         };
-      });
-    })
-    .flat();
-
-  // Classer les résultats par idCommande
-  const commandesClassees = resultats.reduce((acc, curr) => {
-    if (!acc[curr.idCommande]) {
-      acc[curr.idCommande] = [];
-    }
-    acc[curr.idCommande].push(curr);
-    return acc;
-  }, {});
+      }),
+    };
+  });
 
   return res.status(200).json({
     status: "success",
-    data: commandesClassees,
-    message: "Voici les commandes de l'utilisateur classées par idCommande",
+    data: resultats,
+    message:
+      "Voici les commandes de l'utilisateur avec détails utilisateur et produits.",
   });
 });
 

@@ -10,6 +10,7 @@ app.use(express.json());
 app.use(cors());
 
 const authRouter = require("./route/authRoute");
+const utilisateurRouter = require("./route/utilisateurRoute");
 const produitRouter = require("./route/produitRoute");
 const categorieRouter = require("./route/categorieRoute");
 const panierRouter = require("./route/panierRoute");
@@ -33,6 +34,7 @@ app.get("/", (req, res) => {
 
 //tous les routes
 app.use("/api/auth", authRouter); //route pour authentification
+app.use("/api/utilisateur", utilisateurRouter); //route pour utilisateur
 app.use("/api/produit", produitRouter); //route pour produit
 app.use("/api/categorie", categorieRouter); //route pour categorie
 app.use("/api/panier", panierRouter); //route pour panier
