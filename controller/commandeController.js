@@ -165,15 +165,16 @@ const getCommandesUtilisateur = catchAsync(async (req, res, next) => {
     return {
       idCommande: commande.id,
       date: commande.date_commande,
+      statut: commande.statut,
       user: {
         id: req.utilisateur.id,
         nom: req.utilisateur.nom,
         email: req.utilisateur.email,
       },
       commande: commande.commandeProduits.map((cp) => {
-        const prixUnitaire = cp.produit.prix;
+        const prixUnitaire = +cp.produit.prix;
         const quantiteCommandee = cp.quantite;
-        const TVA = cp.produit.tva_pourcentage;
+        const TVA = +cp.produit.tva_pourcentage;
         const prixHT = prixUnitaire * quantiteCommandee;
         const prixAvecTVA = prixHT * (1 + TVA / 100);
 
