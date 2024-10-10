@@ -11,12 +11,16 @@ const {
   supprimerProduit,
   upload,
   rechercherProduitParNom,
+  getTopSellingProducts,
+  getProduitByCatId
 } = require("../controller/produitController");
 
 const router = require("express").Router();
 
 // route pour les Produits
 router.route("/recherche").get(rechercherProduitParNom);
+router.route("/top").get(getTopSellingProducts);
+router.route("/categorie/:catId").get(getProduitByCatId);
 router
   .route("/")
   .post(

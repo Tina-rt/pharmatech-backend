@@ -17,11 +17,11 @@ const router = require("express").Router();
 router
   .route("/")
   .post(authentification, restriction("admin"), creerCategorie)
-  .get(authentification, getCategories);
+  .get(getCategories);
 
 router
   .route("/:id")
-  .get(authentification, getCategorieId)
+  .get(getCategorieId)
   .patch(authentification, restriction("admin"), modifierCategorie)
   .delete(authentification, restriction("admin"), supprimerCategorie);
 

@@ -45,22 +45,25 @@ const creerLivraison = catchAsync(async (req, res, next) => {
   }
 
   // Créer une nouvelle livraison
-  const nouvelleLivraison = await livraison.create({
+  const nouvelleLivraisonData = {
     commande_id: body.commande_id,
     nom: body.nom,
     prenom: body.prenom,
     email: body.email,
     phone: body.phone,
     adresse: body.adresse,
-    prescription: req.file.path,
     ville: body.ville,
     code_postal: body.code_postal,
     date_livraison: body.date_livraison,
     transporteur: body.transporteur,
     numero_suivi: body.numero_suivi,
-    methode_livraison_id: body.methode_livraison_id,
+    // methode_livraison_id: body.methode_livraison_id,
     statut_livraison: "En attente",
-  });
+  }
+  if (req.file){
+    nouvelleLivraisonData['prescription'] = req.file.path;
+  }
+  const nouvelleLivraison = await livraison.create(nouvelleLivraisonData);
 
   return res.status(201).json({
     status: "success",

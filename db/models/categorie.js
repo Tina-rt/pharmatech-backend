@@ -22,10 +22,11 @@ const categorie = sequelize.define(
     },
     createdAt: {
       allowNull: false,
+      defaultValue: Sequelize.NOW,
       type: DataTypes.DATE,
     },
     updatedAt: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.DATE,
     },
   },

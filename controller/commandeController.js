@@ -110,7 +110,13 @@ const getCommandesUtilisateurs = catchAsync(async (req, res, next) => {
       prenomUtilisateur: commande.utilisateur.prenom, // Prénom de l'utilisateur
       emailUtilisateur: commande.utilisateur.email, // Email de l'utilisateur
       idCommande: commande.id, // ID de la commande
-      dateCommande: commande.date, // Date de la commande
+      dateCommande: commande.date_commande, // Date de la commande
+      statut: commande.statut,
+      total: commande.commandeProduits.reduce((acc, item) => {
+        const prixTotal = item.quantite * item.produit.prix;
+        const prixTVA = prixTotal * (item.produit.tva_pourcentage / 100);
+        return acc + prixTotal + prixTVA;
+      }, 0),
       produits: commande.commandeProduits.map((cp) => {
         const prixUnitaire = cp.produit.prix;
         const quantiteCommandee = cp.quantite;
@@ -154,6 +160,8 @@ const getCommandesUtilisateur = catchAsync(async (req, res, next) => {
         ],
       },
     ],
+    order: [["date_commande", "DESC"]],
+
   });
 
   if (!commandes.length) {
@@ -211,11 +219,13 @@ const getCommandesUtilisateurId = catchAsync(async (req, res, next) => {
         include: [
           {
             model: produit,
-            attributes: ["nom", "prix", "tva_pourcentage"],
+            attributes: ["nom", "prix", "tva_pourcentage", "image"],
           },
         ],
       },
+     
     ],
+    order: [["date_commande", "DESC"]],
   });
 
   if (!commandes.length) {
@@ -223,23 +233,30 @@ const getCommandesUtilisateurId = catchAsync(async (req, res, next) => {
   }
 
   // Transformer les données en fonction des besoins
+  let sousTotal = 0;
+  let total = 0;
+  let dateCommande;
   const resultats = commandes
     .map((commande) => {
+      dateCommande = commande.date_commande;
       return commande.commandeProduits.map((cp) => {
         const prixUnitaire = cp.produit.prix;
         const quantiteCommandee = cp.quantite;
         const TVA = cp.produit.tva_pourcentage;
         const prixHT = prixUnitaire * quantiteCommandee;
+        sousTotal += prixHT;
         const prixAvecTVA = prixHT * (1 + TVA / 100);
-
+        total += prixAvecTVA;
         return {
           idCommande: commande.id,
           idProduit: cp.produit_id,
           nomProduit: cp.produit.nom,
-          quantiteCommandee: quantiteCommandee,
-          prixUnitaire: prixUnitaire,
-          TVA: TVA,
-          prixAvecTVA: prixAvecTVA,
+          quantiteCommandee: +quantiteCommandee,
+          prixUnitaire: +prixUnitaire,
+          TVA: +TVA,
+          prixAvecTVA: +prixAvecTVA,
+          image: cp.produit.image,
+          statut: commande.statut
         };
       });
     })
@@ -248,6 +265,9 @@ const getCommandesUtilisateurId = catchAsync(async (req, res, next) => {
   return res.status(200).json({
     status: "success",
     data: resultats,
+    sousTotal,
+     dateCommande,
+    total,
     message: "Voici les commandes de l'utilisateur",
   });
 });

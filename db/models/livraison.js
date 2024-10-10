@@ -86,16 +86,16 @@ const livraison = sequelize.define(
       type: DataTypes.ENUM("En attente", "En transit", "Livrée", "Retour"),
       defaultValue: "en attente",
     },
-    methode_livraison_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: "methodeLivraison",
-        key: "id",
-      },
-      onUpdate: "CASCADE",
-      onDelete: "CASCADE",
-    },
+    // methode_livraison_id: {
+    //   type: DataTypes.INTEGER,
+    //   allowNull: false,
+    //   references: {
+    //     model: "methodeLivraison",
+    //     key: "id",
+    //   },
+    //   onUpdate: "CASCADE",
+    //   onDelete: "CASCADE",
+    // },
     createdAt: {
       allowNull: false,
       type: DataTypes.DATE,
@@ -115,13 +115,14 @@ const livraison = sequelize.define(
   }
 );
 
-methodeLivraison.hasMany(livraison, {
-  foreignKey: "methode_livraison_id",
-  as: "livraison",
-});
-livraison.belongsTo(methodeLivraison, {
-  foreignKey: "methode_livraison_id",
-  as: "methodeLivraison",
-});
+// methodeLivraison.hasMany(livraison, {
+//   foreignKey: "methode_livraison_id",
+//   as: "livraison",
+// });
+// livraison.belongsTo(methodeLivraison, {
+//   foreignKey: "methode_livraison_id",
+//   as: "methodeLivraison",
+// });
+
 
 module.exports = livraison;
