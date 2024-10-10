@@ -4,6 +4,7 @@ const express = require("express");
 const path = require("path");
 const app = express();
 const cors = require("cors");
+const sequelize = require("./config/database");
 const port = process.env.APP_PORT;
 
 app.use(express.json());
@@ -55,6 +56,17 @@ app.use(
 );
 
 app.use(globalErrorHandler);
+
+async function test() {
+  try {
+    await sequelize.authenticate();
+    console.log("Connection has been established successfully.");
+  } catch (error) {
+    console.error("Unable to connect to the database:", error);
+  }
+};
+
+test();
 
 app.listen(port, () =>
   console.log(`Pharmatech back end sur le port :  ${port}!`)
