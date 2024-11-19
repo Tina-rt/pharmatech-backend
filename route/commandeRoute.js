@@ -9,6 +9,7 @@ const {
   getCommandesUtilisateurId,
   supprimerCommandesUtilisateurId,
   getCommandesUtilisateurs,
+  exportCommande,
 } = require("../controller/commandeController");
 
 const router = require("express").Router();
@@ -23,6 +24,8 @@ router
 router
   .route("/liste")
   .get(authentification, restriction("admin"), getCommandesUtilisateurs);
+
+router.route("/export").get(authentification, restriction('admin') , exportCommande);
 
 router
   .route("/:id")

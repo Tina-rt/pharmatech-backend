@@ -20,6 +20,9 @@ const methodeLivraisonRouter = require("./route/methodeLivraisonRoute");
 const LivraisonRouter = require("./route/livraisonRoute");
 const factureRouter = require("./route/factureRoute");
 const paiementRouter = require("./route/paiementRoute");
+const commandeAdminRouter = require("./route/commandeAdminRoute");
+const dashboardRouter = require("./route/dashboardRoute");
+const methodePaiementRouter = require("./route/methodePaiementRoute");
 
 const catchAsync = require("./utils/catchAsync");
 const AppError = require("./utils/appError");
@@ -27,10 +30,10 @@ const { stack } = require("sequelize/lib/utils");
 const globalErrorHandler = require("./controller/errorController");
 
 app.get("/", (req, res) => {
-  res.status(200).json({
-    status: "success",
-    message: "API Rest Marche bien dans Pharmatech Back end",
-  });
+    res.status(200).json({
+        status: "success",
+        message: "API Rest Marche bien dans Pharmatech Back end",
+    });
 });
 
 //tous les routes
@@ -43,31 +46,35 @@ app.use("/api/commande", commandeRouter); //route pour commande
 app.use("/api/methodeLivraison", methodeLivraisonRouter); //route pour methode livraison
 app.use("/api/livraison", LivraisonRouter); //route pour  livraison
 app.use("/api/facture", factureRouter); //route pour methode facture
-//app.use("/api/paiement", paiementRouter); //route pour  paiement
+app.use("/api/methodePaiement", methodePaiementRouter); // route pour les methodes de paiement
+
+app.use("/api/admin/commande", commandeAdminRouter); //route pour commande admin
+app.use("/api/dashboard", dashboardRouter); // Route pour le dashboard
+app.use("/api/paiement", paiementRouter); //route pour  paiement
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 //Route indisponnible
 app.use(
-  "*",
-  catchAsync(async (req, res, next) => {
-    throw new AppError("La page n'existe pas", 404);
-  })
+    "*",
+    catchAsync(async (req, res, next) => {
+        throw new AppError("La page n'existe pas", 404);
+    })
 );
 
 app.use(globalErrorHandler);
 
 async function test() {
-  try {
-    await sequelize.authenticate();
-    console.log("Connection has been established successfully.");
-  } catch (error) {
-    console.error("Unable to connect to the database:", error);
-  }
-};
+    try {
+        await sequelize.authenticate();
+        console.log("Connection has been established successfully.");
+    } catch (error) {
+        console.error("Unable to connect to the database:", error);
+    }
+}
 
 test();
 
 app.listen(port, () =>
-  console.log(`Pharmatech back end sur le port :  ${port}!`)
+    console.log(`Pharmatech back end sur le port :  ${port}!`)
 );

@@ -5,6 +5,8 @@ const catchAsync = require("../utils/catchAsync");
 const { Op } = require("sequelize");
 const commandeProduit = require("../db/models/commandeproduit");
 const categorie = require("../db/models/categorie");
+const converter = require('csvjson');
+
 
 // Configuration de Multer pour le stockage des images
 const storage = multer.diskStorage({
@@ -56,20 +58,21 @@ const creerProduit = catchAsync(async (req, res, next) => {
 
 // Lire toutes produits
 const getProduits = catchAsync(async (req, res, next) => {
-		const categorie = req.query.cat;
+    const categorie_ = req.query.cat;
     const priceOrder = req.query.price;
-		const createdAt = req.query.created_at;
-    const whereQuery = {};
+    const createdAt = req.query.created_at;
+    const queryOption = {};
     if (priceOrder && ["asc", "desc"].includes(priceOrder.toLowerCase())) {
-        whereQuery.order = [["prix", priceOrder.toLowerCase()]];
+        queryOption.order = [["prix", priceOrder.toLowerCase()]];
     }
-		if (categorie) {
-				whereQuery.where = { categorie_id: categorie };
-		}
-		if (createdAt && ["asc", "desc"].includes(createdAt.toLowerCase())) {
-				whereQuery.order = [["createdAt", createdAt]];
-		}
-    const resultat = await produit.findAll(whereQuery);
+    if (categorie_) {
+        queryOption.where = { categorie_id: categorie_ };
+    }
+    if (createdAt && ["asc", "desc"].includes(createdAt.toLowerCase())) {
+        queryOption.order = [["createdAt", createdAt]];
+    }
+    queryOption.include = [{ model: categorie }];
+    const resultat = await produit.findAll(queryOption);
     delete resultat.deletedAt;
     return res.json({
         status: "success",
@@ -106,9 +109,19 @@ const rechercherProduitParNom = catchAsync(async (req, res, next) => {
     const nom = req.query.nom;
     const catId = req.query.cat;
     let whereQuery = {
-        nom: {
-            [Op.iLike]: `%${nom}%`,
-        },
+        [Op.or]: [
+            {
+                nom: {
+                    [Op.iLike]: `%${nom}%`,
+                },
+            },
+            {
+                description: {
+                    [Op.iLike]: `%${nom}%`,
+                },
+            },
+        ],
+        
     };
     if (catId) {
         whereQuery.categorie_id = catId;
@@ -232,6 +245,43 @@ const getProduitByCatId = catchAsync(async (req, res, next) => {
     });
 });
 
+const exportProduits = catchAsync(async (req, res, next) => {
+    const resultat = await produit.findAll(
+        {
+            include: [
+                {
+                    model: categorie
+                }
+            ]
+        }
+    );
+    
+    const csvData = converter.toCSV(resultat.map( p=> ({
+        id: p.id,
+        nom: p.nom,
+        description: p.description,
+        prix: p.prix,
+        image: p.image,
+        categorie: p.categorie.nom,
+        marque: p.marque,
+        numero_serie: p.numero_serie,
+        caracteristique_principale: p.caracteristique_principale,
+        reduction: p.reduction,
+        tva_pourcentage: p.tva_pourcentage,
+        createdAt: p.createdAt
+    })), {delimiter: ',', wrap: false, headers: 'key'})
+
+    res.setHeader(
+        'Content-disposition',
+      'attachment; filename=produits.csv'
+    );
+
+    res.setHeader('Content-type', 'application/vnd.ms-excel');
+    return res.send(csvData);
+
+} )
+
+
 module.exports = {
     creerProduit,
     getProduits,
@@ -241,5 +291,6 @@ module.exports = {
     modifierProduit,
     supprimerProduit,
     getProduitByCatId,
+    exportProduits,
     upload, // Exportation de l'upload pour l'utiliser dans les routes
 };

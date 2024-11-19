@@ -160,7 +160,39 @@ const connexion = catchAsync(async (req, res, next) => {
     token,
   });
 });
+const connexionAdmin = catchAsync(async (req, res, next) => {
+  const { email, phone, motdepasse } = req.body;
 
+  //si il n'y a pas de mot de passe ou email
+  if (!(email || phone) || !motdepasse) {
+    return next(new AppError("Veuillez vous renseigner s'il vous plait", 400));
+  }
+
+  //voir si c'est le bonne utilisateur
+  let resultat;
+  if (email) {
+    resultat = await utilisateur.findOne({
+      where: { email, role: "admin" },
+    });
+  } else {
+    resultat = await utilisateur.findOne({
+      where: { phone, role: "admin" },
+    });
+  }
+
+  if (!resultat || !(await bcrypt.compare(motdepasse, resultat.motdepasse))) {
+    return next(new AppError("Votre email ou mot de passe errone", 401));
+  }
+
+  const token = generateToken({
+    id: resultat.id,
+  });
+
+  return res.status(201).json({
+    status: "Success",
+    token,
+  });
+});
 /*                         RESTRICTION CERTAIN ROLE                  */
 const restriction = (...roles) => {
   const checkPermission = (req, res, next) => {
@@ -316,6 +348,7 @@ const motdepasseoublie = catchAsync(async (req, res, next) => {
 module.exports = {
   inscription,
   connexion,
+  connexionAdmin,
   deconnexion,
   authentification,
   restriction,

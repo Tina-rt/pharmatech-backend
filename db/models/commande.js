@@ -9,7 +9,7 @@ const commandeProduit = require("./commandeproduit");
 const commande = sequelize.define(
   "commande",
   {
-    id: {
+  id: {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,

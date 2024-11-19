@@ -1,6 +1,7 @@
 "use strict";
 const { Model, Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../../config/database");
+const methodePaiement = require("./methodepaiement");
 
 const paiement = sequelize.define(
   "paiement",
@@ -42,17 +43,25 @@ const paiement = sequelize.define(
       allowNull: false,
       defaultValue: DataTypes.NOW,
     },
-    mode_paiement: {
-      type: Sequelize.ENUM("carte", "virement", "mobile money"),
+    // mode_paiement: {
+    //   type: Sequelize.ENUM("carte", "virement", "mobile money"),
+    //   allowNull: true,
+    //   validate: {
+    //     notEmpty: {
+    //       msg: "Veuillez indiquer le mode de paiement.",
+    //     },
+    //     isIn: {
+    //       args: [["carte", "virement", "mobile money"]],
+    //       msg: "Le mode de paiement n'est pas valide.",
+    //     },
+    //   },
+    // },
+    methode_paiement_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: "Veuillez indiquer le mode de paiement.",
-        },
-        isIn: {
-          args: [["carte", "virement", "mobile money"]],
-          msg: "Le mode de paiement n'est pas valide.",
-        },
+      references: {
+        model: "methodepaiement",
+        key: "id",
       },
     },
     statut_paiement: {
@@ -66,15 +75,15 @@ const paiement = sequelize.define(
         },
       },
     },
-    reference: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: "Veuillez mettre la references du paiements",
-        },
-      },
-    },
+    // reference: {
+    //   type: DataTypes.STRING(50),
+    //   allowNull: false,
+    //   validate: {
+    //     notNull: {
+    //       msg: "Veuillez mettre la references du paiements",
+    //     },
+    //   },
+    // },
     createdAt: {
       allowNull: false,
       type: DataTypes.DATE,
@@ -93,5 +102,7 @@ const paiement = sequelize.define(
     modelName: "paiement",
   }
 );
+
+paiement.hasOne(methodePaiement, {foreignKey: 'id'});
 
 module.exports = paiement;
